@@ -42,7 +42,8 @@ class OneTimeBookList(APIView):
 			"page": {
 				        "page_no": 1,
 				        "page_size": 10,
-				        "total_items": 4
+				        "total_items": 4,
+				        "total_pages": 1
 				    },
 			"data": final_result
 		}
@@ -101,6 +102,7 @@ class OneTimeBookList(APIView):
 					"page_no": page_no,
 					"page_size": page_size,
 					"total_items": page_count,
+					"total_pages" : pages.num_pages
 				}
 				pro_data =[]
 				series_name = None
