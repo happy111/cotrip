@@ -39,12 +39,16 @@ class OneTimeBookList(APIView):
 		Response: {
 
 			"success": True, 
-			"message": "Book creation/updation api worked well!!",
+			"page": {
+				        "page_no": 1,
+				        "page_size": 10,
+				        "total_items": 4
+				    },
 			"data": final_result
 		}
 
 	"""
-	permission_classes = (IsAuthenticated,)
+	# permission_classes = (IsAuthenticated,)
 	def post(self, request, format=None):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
