@@ -79,8 +79,19 @@ class BookRetrieve(APIView):
 				else:
 					q_dict["draft"] = "Release"
 
-				q_dict["series_code"] = record[0].series_code
-				q_dict["area_code"] = record[0].area_code
+
+				if record[0].series_code == None:
+						series_name = None
+				else :
+					series_name = record[0].series_code.series_name
+
+				if record[0].area_code == None:
+						area_name = None
+				else :
+					area_name = record[0].area_code.area_name
+
+				q_dict["series_code"] = series_name
+				q_dict["area_code"] = area_name
 				q_dict["book_type"] = record[0].book_type
 				q_dict["paper_version"] = record[0].paper_version
 				q_dict["expiration_start"] = record[0].expiration_start
@@ -91,6 +102,7 @@ class BookRetrieve(APIView):
 				q_dict["free_url"] = record[0].free_url
 				q_dict["map_credit"] = record[0].map_credit
 				q_dict['expire_days'] = record[0].expire_days
+				q_dict['thumbnailURL'] = record[0].thumbnailURL
 				if record[0].modified !=None:
 					m = record[0].modified+timedelta(hours=5,minutes=30)
 					q_dict["modified"] =  m.strftime("%Y-%m-%d %I:%M %p")

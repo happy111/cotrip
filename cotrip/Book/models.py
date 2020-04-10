@@ -95,6 +95,7 @@ class MstBooks(models.Model):
 	expire_days = models.PositiveIntegerField(null=True, blank=True, verbose_name='Expire Days')
 	free_url = models.TextField(max_length=200, verbose_name='Free Url',null=True, blank=True)
 	browsing_page = models.TextField(max_length=200, verbose_name='Browsing Page',null=True, blank=True)
+	
 	download_url = models.TextField(max_length=200, verbose_name='Download Url',null=True, blank=True)
 	thumbnailURL = models.TextField(max_length=200, verbose_name='Thumbnail Url',null=True, blank=True)
 
@@ -106,6 +107,10 @@ class MstBooks(models.Model):
 	created = models.DateTimeField(auto_now_add=True,verbose_name='Creation Date & Time')
 	modified = models.DateTimeField(blank=True, null=True,verbose_name='Updation Date & Time')
 	deleted = models.DateTimeField(blank=True, null=True,verbose_name='Deleted')
+	epub = models.FileField(upload_to='epub',
+								null=True, blank=True, verbose_name='Epub')
+	epub_cover = models.FileField(upload_to='epubcover',
+								null=True, blank=True, verbose_name='Epub Cover')
 
 
 

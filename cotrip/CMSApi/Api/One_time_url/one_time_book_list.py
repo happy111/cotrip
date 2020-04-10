@@ -23,17 +23,10 @@ class OneTimeBookList(APIView):
 		Authentication Required		: Yes
 		Service Usage & Description	: This Api is used for listing of book.
 
-		Data Post : {
-	
-						"isbn_edition":"",
-						"book_name":"" ,
-						"compaign_book" : "0", ( if checked ->"1" ,if not checked -> "0")
-						"page_info":
-									{
-										"page_size":"10",
-										"page_no":"1"
-									}
-						
+		Data Post : {				
+								"search":"97",
+								"page_no":"1"
+											
 					}
 
 		Response: {
@@ -49,41 +42,37 @@ class OneTimeBookList(APIView):
 		}
 
 	"""
-	# permission_classes = (IsAuthenticated,)
+	permission_classes = (IsAuthenticated,)
 	def post(self, request, format=None):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
+
 			if book_data.count() > 0:
 
 				data = request.data
-
-				title = ""
-				if "book_name" in data:
-					title = data["book_name"]
-					if title != "" :
-						book_data = book_data.filter(title__icontains=title)
-
-				isbn_edition=""
-				if "isbn_edition" in data:
-					isbn_edition = data["isbn_edition"]
-					if isbn_edition != "" :
-						book_data = book_data.filter(isbn_edition__icontains=isbn_edition)
+				print(data)
+				search = ""
+				if "search" in data:
+					search = data["search"]
+					if search != "" :
+						book_data = book_data.filter(Q(isbn_edition__icontains=search)|Q(title__icontains=search))
+						
 
 				if "compaign_book" in data:
 					compaign_book = data["compaign_book"]
 
-					if compaign_book == "0" : # It mean unchecked
+					if compaign_book == False : # It mean unchecked
 						book_data = book_data.filter(~Q(series_code=None))
 
 
 				page_no = 1
 				page_size = 20
-				if "page_info" in data:
-					if "page_size" in data["page_info"] :
-						page_size = int(data["page_info"]["page_size"])
+				
+				if "page_size" in data :
+					page_size = int(data["page_size"])
 
-					if "page_no" in data["page_info"] :
-						page_no = int(data["page_info"]["page_no"])
+				if "page_no" in data :
+					page_no = int(data["page_no"])
 
 				try:
 					if page_size > 200:
@@ -107,7 +96,6 @@ class OneTimeBookList(APIView):
 				pro_data =[]
 				series_name = None
 				for i in range(len(book_data_pages.object_list)):
-					
 					if book_data_pages[i].series_code == None:
 						series_name = None
 					else :

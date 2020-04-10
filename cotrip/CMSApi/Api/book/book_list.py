@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 import json
 from Book.models import MstBooks
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -19,6 +20,24 @@ class BookList(APIView):
 	"""
 	Book Listing POST API
 		Authentication Required		: Yes
+		Data Post : {				
+								"search":"97",
+								"page_no":"1"
+											
+					}
+
+		Response: {
+
+			"success": True, 
+			"page": {
+				        "page_no": 1,
+				        "page_size": 10,
+				        "total_items": 4,
+				        "total_pages": 1
+				    },
+			"data": final_result
+		}
+
 		Service Usage & Description	: This Api is used for listing of book.
 	"""
 	permission_classes = (IsAuthenticated,)
@@ -26,35 +45,79 @@ class BookList(APIView):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
 			if book_data.count() > 0:
+
+				data = request.data
+
 				pro_data =[]
-				for i in book_data:
-					if i.draft ==str(0):
+
+				search = ""
+				if "search" in data:
+					search = data["search"]
+					if search != "" :
+						book_data = book_data.filter(Q(isbn_edition__icontains=search)|Q(title__icontains=search))
+
+
+				page_no = 1
+				page_size = 20
+
+				if "page_size" in data :
+					page_size = int(data["page_size"])
+
+				if "page_no" in data :
+					page_no = int(data["page_no"])
+
+				try:
+					if page_size > 200:
+						page_size = 200
+					pages = Paginator(book_data, page_size)
+					book_data_pages = pages.page(page_no)
+				except PageNotAnInteger:
+					page_no = 1
+					book_data_pages = pages.page(page_no)
+				except EmptyPage:
+					page_no = pages.num_pages
+					book_data_pages = pages.page(page_no)
+
+				page_count = pages.count
+				page_info = {
+					"page_no": page_no,
+					"page_size": page_size,
+					"total_items": page_count,
+					"total_pages" : pages.num_pages
+				}
+
+
+
+				for i in range(len(book_data_pages.object_list)):
+					if book_data_pages[i].draft ==str(0):
 						dr = "Unpublished"
-					elif i.draft == str(1):
+					elif book_data_pages[i].draft == str(1):
 						dr = "Editing"
 					else:
 						dr = "Release"
-					if i.oversea ==str(0):
+					if book_data_pages[i].oversea ==str(0):
 						country = "Overseas"
 					else:
 						country = "Domestic"
-					if i.status ==0:
+					if book_data_pages[i].status ==0:
 						st = "Invalid"
 					else:
 						st = "Effectiveness"
 
 					p_list ={}
-					p_list['id'] = i.id
-					p_list['isbn_edition'] = i.isbn_edition
-					p_list['title'] = i.title
+					p_list['id'] = book_data_pages[i].id
+					p_list['isbn_edition'] = book_data_pages[i].isbn_edition
+					p_list['title'] = book_data_pages[i].title
 					p_list['oversea'] = country
-					p_list['release_date'] = i.release_date
-					p_list['issued_date'] = i.issued_date
-					p_list['modified'] = i.modified
+					p_list['release_date'] = book_data_pages[i].release_date
+					p_list['issued_date'] = book_data_pages[i].issued_date
+					p_list['modified'] = book_data_pages[i].modified
 					p_list['draft'] = dr
 					p_list['status'] = st
+					p_list['thumbnailURL'] = book_data_pages[i].thumbnailURL
 					pro_data.append(p_list)
 				return Response({"status":True,
+								  "page": page_info,
 								"data":pro_data})
 			else:
 				return Response({"status":True,

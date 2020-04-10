@@ -17,6 +17,9 @@ from CMSApi.Api.book.book_create_update import BookCreationUpdation
 from CMSApi.Api.book.book_list import BookList
 from CMSApi.Api.book.book_retrieve import BookRetrieve
 from CMSApi.Api.book.book_import import BookImport
+from CMSApi.Api.book.book_import import BookImport
+from CMSApi.Api.book.book_bulk_upload import BookBulkUpload
+
 
 # One time url part
 
@@ -45,6 +48,7 @@ urlpatterns = [
 	path('book/list/',BookList.as_view()),
 	path('book/retrieve/',BookRetrieve.as_view()),
 	path('book/import/',BookImport.as_view()),
+	path('book/bulkupload/',BookBulkUpload.as_view()),
 
 	#One time url Module
 	path('one_time_url/book/list/',OneTimeBookList.as_view()),
