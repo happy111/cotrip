@@ -79,6 +79,15 @@ class AreaRetrieve(APIView):
 				q_dict["revision"] = record[0].revision
 				q_dict["area_code"] = record[0].area_code
 				q_dict["status"] = record[0].status
+				if record[0].modified !=None:
+					m = record[0].modified+timedelta(hours=5,minutes=30)
+					q_dict["modified"] =  m.strftime("%Y-%m-%d %I:%M %p")
+				else:
+					q_dict["modified"] = ''
+				p = record[0].created+timedelta(hours=5,minutes=30)
+				q_dict['registration'] = p.strftime("%Y-%m-%d %I:%M %p")
+
+
 				final_result.append(q_dict)
 			if final_result:
 				return Response({

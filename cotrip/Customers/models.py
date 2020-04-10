@@ -16,10 +16,12 @@ class CustomerProfile(models.Model):
 	company = models.ForeignKey(Company, related_name='CustomerProfile_Company', null=True, blank=True,
 												on_delete=models.CASCADE,verbose_name='Company',
 												limit_choices_to={'active_status':'1'})
-	nickname = models.CharField(max_length=100, verbose_name='Nick Name')
+	nickname = models.CharField(max_length=100,null=True,blank=True, verbose_name='Nick Name')
 	prefecture = models.CharField(max_length=100, verbose_name='Prefecture',null=True,blank=True)
 
 	username = models.CharField(max_length=100, verbose_name='User Name',null=True,blank=True)
+	password = models.CharField(max_length=100, verbose_name='Password',null=True,blank=True)
+
 	mobile = models.CharField(max_length=20,
 			verbose_name='Mobile No',null=True,blank=True)
 
@@ -27,7 +29,7 @@ class CustomerProfile(models.Model):
 	user_type = models.BooleanField(default=1, verbose_name='User Type')
 
 
-	email = models.EmailField(max_length=100, verbose_name='Email')
+	email = models.EmailField(max_length=100,null=True,blank=True, verbose_name='Email')
 	gender = models.CharField(max_length=100,verbose_name='Gender', null=True, blank=True)
 	birth_year = models.DateTimeField(verbose_name='Birth Year', null=True,blank=True)
 	age = models.PositiveIntegerField(validators=[MinValueValidator(18),MaxValueValidator(100),], 

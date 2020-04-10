@@ -18,6 +18,11 @@ from CMSApi.Api.book.book_list import BookList
 from CMSApi.Api.book.book_retrieve import BookRetrieve
 from CMSApi.Api.book.book_import import BookImport
 
+# One time url part
+
+from CMSApi.Api.One_time_url.one_time_book_list import OneTimeBookList
+from CMSApi.Api.One_time_url.one_time_book_retrieve import OneTimeBookRetrieve
+
 urlpatterns = [
 	path('signin/',SignIn.as_view()),
 	path('logout/',Logout.as_view()),
@@ -40,6 +45,10 @@ urlpatterns = [
 	path('book/list/',BookList.as_view()),
 	path('book/retrieve/',BookRetrieve.as_view()),
 	path('book/import/',BookImport.as_view()),
+
+	#One time url Module
+	path('one_time_url/book/list/',OneTimeBookList.as_view()),
+	path('one_time_url/book/retrieve/',OneTimeBookRetrieve.as_view()),
 ]
 
 

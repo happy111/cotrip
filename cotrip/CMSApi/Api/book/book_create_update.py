@@ -65,7 +65,7 @@ class BookCreationUpdation(APIView):
 			data = request.data
 			err_message = {}
 			if "id" in data:
-				unique_check = MstBooks.objects.filter(~Q(id=data["id"]),Q(uui__iexact=data["uuid"]))
+				unique_check = MstBooks.objects.filter(~Q(id=data["id"]),Q(uuid__iexact=data["uuid"]))
 			else:
 				unique_check = MstBooks.objects.filter(Q(uuid__iexact=data["uuid"]))
 								

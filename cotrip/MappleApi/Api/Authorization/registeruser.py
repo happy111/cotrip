@@ -22,8 +22,6 @@ class CustomerSignUpSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-
-
 class Signup(LoggingMixin,APIView):
 	"""
 	This Api is used tp provide basic signup/signin functionality on mapple
@@ -50,7 +48,8 @@ class Signup(LoggingMixin,APIView):
 			mutable = request.POST._mutable
 			request.POST._mutable = True
 			err_message = {}
-
+			r_data = {}
+			la = {}
 			err_message["email"] = \
 					validation_master_anything(registration_data["email"],
 					"Email",email_re, 3)
@@ -84,6 +83,11 @@ class Signup(LoggingMixin,APIView):
 						login(request,user_authenticate)
 						token, created = Token.objects.get_or_create(user=user_authenticate)
 						user_id = token.user_id
+						cusdata = CustomerProfile.objects.filter(auth_user_id=user_id)
+						la['last_logined'] =  datetime.now()
+						customer_registration_serializer = CustomerSignUpSerializer(cusdata[0],data=la,partial=True)
+						if customer_registration_serializer.is_valid():
+							customer_data_save = customer_registration_serializer.save()
 						return Response({
 								"success": True,
 								"credential" : True,
@@ -101,6 +105,15 @@ class Signup(LoggingMixin,APIView):
 							is_active=True
 							)
 				if create_user:
+					r_data['password'] = registration_data['password']
+					r_data["auth_user"] = create_user.id
+					r_data["user_type"] = 0
+					r_data["email"] = registration_data['email']
+					customer_registration_serializer = CustomerSignUpSerializer(data=r_data)
+					if customer_registration_serializer.is_valid():
+						customer_data_save = customer_registration_serializer.save()
+					else:
+						print("Error",customer_registration_serializer)
 					user_authenticate = authenticate(username=username,password=registration_data['password'])
 					if user_authenticate == None:
 						return Response({

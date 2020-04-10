@@ -19,8 +19,26 @@ from django.contrib.auth import logout
 class CustomerSignUpSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomerProfile
-		fields = '__all__'
-
+		fields = (
+			'auth_user',
+			'company',
+			'nickname',
+			'username',
+			'prefecture',
+			'twitter_id',
+			'facebook_id',
+			'married',
+			'job',
+			'allow_mail',
+			'active_status',
+			'created_at',
+			'updated_at',
+			'age',
+			'birth_year',
+			'gender',
+			'email',
+			'user_type'
+		)
 
 
 class Profile(LoggingMixin,APIView):
@@ -91,7 +109,6 @@ class Profile(LoggingMixin,APIView):
 			err_message["job"] = \
 					validation_master_anything(registration_data["job"],
 					"Job title",username_re, 1)
-			
 			if type(registration_data['birth_year']) == str and registration_data['birth_year'] == '':
 				err_message["birth_year"]  = "Please Enter date of birth!!"
 			else:
@@ -113,7 +130,7 @@ class Profile(LoggingMixin,APIView):
 					"error" : err_message,
 					"message" : "Please correct listed errors!!"
 					})
-			registration_data['company'] = str(1)
+			registration_data['company'] = str(2)
 			username = registration_data['company'] +'M'+str(registration_data['email'])
 			if registration_data["birth_year"]:
 				s = "00:00:00.000000"
@@ -124,7 +141,6 @@ class Profile(LoggingMixin,APIView):
 			if cusdata.count() > 0:
 				registration_data["username"] = username
 				registration_data["user_type"] = 0
-
 				customer_registration_serializer = CustomerSignUpSerializer(cusdata[0],data=registration_data,partial=True)
 				if customer_registration_serializer.is_valid():
 					customer_data_save = customer_registration_serializer.save()
@@ -140,6 +156,8 @@ class Profile(LoggingMixin,APIView):
 						"message": "Profile Updated  successfully.!!"
 								}
 							 	)
+				else:
+					print("cccccccccccccc",customer_registration_serializer.errors)
 			else:
 				registration_data["auth_user"] = user_id
 				registration_data["username"] = username

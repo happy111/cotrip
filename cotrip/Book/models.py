@@ -95,8 +95,8 @@ class MstBooks(models.Model):
 	expire_days = models.PositiveIntegerField(null=True, blank=True, verbose_name='Expire Days')
 	free_url = models.TextField(max_length=200, verbose_name='Free Url',null=True, blank=True)
 	browsing_page = models.TextField(max_length=200, verbose_name='Browsing Page',null=True, blank=True)
-	
-	
+	download_url = models.TextField(max_length=200, verbose_name='Download Url',null=True, blank=True)
+	thumbnailURL = models.TextField(max_length=200, verbose_name='Thumbnail Url',null=True, blank=True)
 
 	explanation = models.TextField(max_length=4000, verbose_name='Explanation',null=True, blank=True)
 	map_credit = models.TextField(max_length=4000, verbose_name='Map Credit',null=True, blank=True)
