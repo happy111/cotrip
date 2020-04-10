@@ -57,17 +57,12 @@ class OneTimeBookList(APIView):
 
 				data = request.data
 
-				title = ""
-				if "book_name" in data:
-					title = data["book_name"]
-					if title != "" :
-						book_data = book_data.filter(title__icontains=title)
-
-				isbn_edition=""
-				if "isbn_edition" in data:
-					isbn_edition = data["isbn_edition"]
-					if isbn_edition != "" :
-						book_data = book_data.filter(isbn_edition__icontains=isbn_edition)
+				search = ""
+				if "search" in data:
+					search = data["search"]
+					if search != "" :
+						book_data = book_data.filter(Q(isbn_edition__icontains=search)|Q(title__icontains=search))
+						
 
 				if "compaign_book" in data:
 					compaign_book = data["compaign_book"]
@@ -78,12 +73,12 @@ class OneTimeBookList(APIView):
 
 				page_no = 1
 				page_size = 20
-				if "page_info" in data:
-					if "page_size" in data["page_info"] :
-						page_size = int(data["page_info"]["page_size"])
+				
+				if "page_size" in data :
+					page_size = int(data["page_size"])
 
-					if "page_no" in data["page_info"] :
-						page_no = int(data["page_info"]["page_no"])
+				if "page_no" in data :
+					page_no = int(data["page_no"])
 
 				try:
 					if page_size > 200:
