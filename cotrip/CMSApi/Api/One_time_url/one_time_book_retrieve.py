@@ -83,6 +83,7 @@ class OneTimeBookRetrieve(APIView):
 				q_dict["title"] = record[0].title
 				q_dict["publication_date"] = record[0].release_date
 				q_dict["download_deadline"] = record[0].expiration_end
+				q_dict['thumbnailURL'] = record[0].thumbnailURL
 				
 				final_result.append(q_dict)
 

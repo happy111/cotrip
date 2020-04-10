@@ -49,7 +49,7 @@ class OneTimeBookList(APIView):
 		}
 
 	"""
-	# permission_classes = (IsAuthenticated,)
+	permission_classes = (IsAuthenticated,)
 	def post(self, request, format=None):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
