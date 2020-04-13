@@ -50,11 +50,11 @@ class SeriesCreationUpdation(APIView):
 			err_message = {}
 			err_message["series_name"] =  validation_master_anything(
 									data["series_name"],
-									"Series name", username_re, 3)
+									"Series name", username_re, 1)
 
 			err_message["series_code"] =  validation_master_anything(
 									data["series_code"],
-									"Series code", vat_re, 3)
+									"Series code", vat_re, 1)
 
 			if any(err_message.values())==True:
 				return Response({

@@ -50,6 +50,7 @@ class BookBulkUpload(APIView):
 			data = request.data
 			allimages = list(data.values())
 			for i in allimages:
+				print(i)
 				a = str(i)
 				if a == 'null':
 					pass

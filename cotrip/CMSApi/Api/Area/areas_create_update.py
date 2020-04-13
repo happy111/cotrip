@@ -13,6 +13,7 @@ from django.db.models import Max
 #Serializer for api
 from rest_framework import serializers
 from Book.models import MstAreas
+from datetime import datetime, timedelta
 
 class AreaSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -47,16 +48,15 @@ class AreaCreationUpdation(APIView):
 	def post(self, request, format=None):
 		try:
 			data = request.data
-			print("fffffffff",data)
 			err_message = {}
 			data['draft'] = 0
 			err_message["area_name"] =  validation_master_anything(
 									data["area_name"],
-									"Area name", username_re, 3)
+									"Area name", username_re, 1)
 
 			err_message["area_code"] =  validation_master_anything(
 									data["area_code"],
-									"Area code", vat_re, 3)
+									"Area code", vat_re, 1)
 
 			if any(err_message.values())==True:
 				return Response({
@@ -66,7 +66,6 @@ class AreaCreationUpdation(APIView):
 					})
 
 			if "id" in data:
-				print("dddddddddddd",data)
 				area_record = MstAreas.objects.filter(id=data['id'])
 				if area_record.count() == 0:
 					return Response(

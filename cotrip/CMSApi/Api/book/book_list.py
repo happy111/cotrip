@@ -12,9 +12,12 @@ from django.db.models import Q
 import json
 from Book.models import MstBooks
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from datetime import datetime, timedelta
 
 
-
+def addr_set():
+	domain_name = "http://172.105.41.233:1234/media/"
+	return domain_name
 
 class BookList(APIView):
 	"""
@@ -45,27 +48,19 @@ class BookList(APIView):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
 			if book_data.count() > 0:
-
 				data = request.data
-
 				pro_data =[]
-
 				search = ""
 				if "search" in data:
 					search = data["search"]
 					if search != "" :
 						book_data = book_data.filter(Q(isbn_edition__icontains=search)|Q(title__icontains=search))
-
-
 				page_no = 1
 				page_size = 20
-
 				if "page_size" in data :
 					page_size = int(data["page_size"])
-
 				if "page_no" in data :
 					page_no = int(data["page_no"])
-
 				try:
 					if page_size > 200:
 						page_size = 200
@@ -77,7 +72,6 @@ class BookList(APIView):
 				except EmptyPage:
 					page_no = pages.num_pages
 					book_data_pages = pages.page(page_no)
-
 				page_count = pages.count
 				page_info = {
 					"page_no": page_no,
@@ -85,9 +79,6 @@ class BookList(APIView):
 					"total_items": page_count,
 					"total_pages" : pages.num_pages
 				}
-
-
-
 				for i in range(len(book_data_pages.object_list)):
 					if book_data_pages[i].draft ==str(0):
 						dr = "Unpublished"
@@ -103,18 +94,33 @@ class BookList(APIView):
 						st = "Invalid"
 					else:
 						st = "Effectiveness"
-
 					p_list ={}
 					p_list['id'] = book_data_pages[i].id
 					p_list['isbn_edition'] = book_data_pages[i].isbn_edition
 					p_list['title'] = book_data_pages[i].title
 					p_list['oversea'] = country
-					p_list['release_date'] = book_data_pages[i].release_date
-					p_list['issued_date'] = book_data_pages[i].issued_date
-					p_list['modified'] = book_data_pages[i].modified
+					m = book_data_pages[i].release_date+timedelta(hours=5,minutes=30)
+					p_list['release_date'] = m.strftime("%Y-%m-%d")
+		
+					e = book_data_pages[i].issued_date+timedelta(hours=5,minutes=30)
+					p_list['issued_date'] = e.strftime("%Y-%m-%d")
+					
+					if book_data_pages[i].modified !=None:
+						p = book_data_pages[i].modified+timedelta(hours=5,minutes=30)
+						p_list['modified'] = p.strftime("%Y-%m-%d")
+					else:
+						p_list['modified'] =''
+
+
 					p_list['draft'] = dr
 					p_list['status'] = st
 					p_list['thumbnailURL'] = book_data_pages[i].thumbnailURL
+					domain_name = addr_set()
+					if book_data_pages[i].epub_cover != None:
+						full_path = domain_name + str(book_data_pages[i].epub_cover)
+						p_list['epub_cover'] = full_path 
+					else:
+						p_list['epub_cover'] = ''
 					pro_data.append(p_list)
 				return Response({"status":True,
 								  "page": page_info,

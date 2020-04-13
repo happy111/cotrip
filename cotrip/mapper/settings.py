@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'Location',
     'MappleApi',
     'CMSApi',
-    'Book'
+    'Book',
+    'backgroundjobs'
 ]
 
 MIDDLEWARE = [

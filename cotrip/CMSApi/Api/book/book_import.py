@@ -20,6 +20,8 @@ import math
 from rest_framework import serializers
 
 
+
+
 class BookSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = MstBooks
@@ -41,7 +43,7 @@ class BookImport(APIView):
 		}
 
 	"""
-	permission_classes = (IsAuthenticated,)
+	# permission_classes = (IsAuthenticated,)
 	def post(self, request, format=None):
 		try:
 			data = request.data
@@ -63,7 +65,7 @@ class BookImport(APIView):
 			b = a.replace("CMSApi/Api","")
 			ad =b+'media/'+str(dt)
 			tsv_read = pd.read_csv(ad, sep='\t')
-			
+
 
 			final_result = []
 			uuid_d=tsv_read['[uuid]']
@@ -115,7 +117,7 @@ class BookImport(APIView):
 				if(type(sereiscode[i])!=float):  # to identify the Nan value
 					series =MstSeries.objects.filter(series_code=sereiscode[i])
 					if series.count() == 0:
-						err_message["unique_check"] = "Series code not exist in Series table"
+						err_message["series_code_check"] = " {} Series code not exist in Series table".format(sereiscode[i])
 					else:
 						series_code=series[0].id
 				
@@ -125,11 +127,23 @@ class BookImport(APIView):
 				if(type(areacode[i])!=float):  # to identify the Nan value
 					area = MstAreas.objects.filter(area_code=areacode[i])
 					if area.count() == 0:
-						err_message["unique_check"] = "Area code not exist in Area table"
+						err_message["area_code_check"] = " {} Area code not exist in Area table".format(areacode[i])
 					else:
 						area_code=area[0].id
 
-				
+				isbn_edition = str(str(isbn[i])+"-"+str(edition[i])+"-"+str(printq[i]))
+
+				unique_check = MstBooks.objects.filter(isbn_edition=isbn_edition)
+				if unique_check.count() > 0:
+						err_message["isbn_edition_check"] = " {} isbn_edition already exist ..".format(isbn_edition)
+
+
+				if any(err_message.values())==True:
+					return Response({
+						"success": False,
+						"error" : err_message,
+						"message" : "Please correct listed errors!!"
+						})
 
 				data = {'uuid':int(uuid_d[i]),
 						'issued_date':issdate2,
@@ -152,8 +166,6 @@ class BookImport(APIView):
 						'oversea':country[i]
 						}
 
-
-				err_message = {}
 
 
 				book_serializer = BookSerializer(data=data)
@@ -207,4 +219,108 @@ class BookImport(APIView):
 
 
 
+
+
+
+		# 	data = request.data
+		# 	user = request.user
+		# 	chk_ext =  str(data["image"])
+		# 	a = chk_ext.split('.')
+		# 	ext = a[1]
+		# 	if ext != 'tsv':
+		# 		return Response({
+		# 				"success": False, 
+		# 				"message" : "Only tsv is allowed" 
+		# 				})
+		# 	else:
+		# 		pass
+		# 	registration_data = {}
+		# 	alldata = Excelimport.objects.create(image=data['image'])
+		# 	dt = Excelimport.objects.filter(id=alldata.id)[0].image
+		# 	a = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+		# 	b = a.replace("CMSApi/Api","")
+		# 	ad =b+'media/'+str(dt)
+
+
+		# 	tsv_read = pd.read_csv(ad, sep='\t')
+
+		# 	print("aaaaaaaaaaa",tsv_read)
+
+		# 	pcode=tsv_read['[p-code]']
+
+		# 	print("dddddddddddd",pcode)
+
+
+
+
+
+		# 	wb = xlrd.open_workbook(ad) 
+
+		# 	sheet = wb.sheet_by_index(0) 
+		# 	sheet.cell_value(0, 0) 
+		# 	a =[]
+		# 	for i in range(1,sheet.nrows):
+		# 		data = {}
+		# 		data['name'] = sheet.cell_value(i, 0)
+		# 		print("aaaaaaaaaaaaa",data['name'])
+		# 		c = sheet.cell_value(i, 1)
+		# 		data['username'] = str(cid)+str(c)
+		# 		data['pas_pin'] =  sheet.cell_value(i, 2)
+		# 		data['email'] = sheet.cell_value(i, 3)
+		# 		data['address'] =  sheet.cell_value(i, 4)
+		# 		data['company'] =  cid
+				
+
+		# 		user_already_exist = User.objects.filter(username=data['username'])
+		# 		if user_already_exist.count() > 0:
+		# 			e = user_already_exist[0].id
+		# 			registration_data["name"] = data['name']
+		# 			registration_data["username"] = data['username']
+		# 			registration_data["email"] = data['email']
+		# 			registration_data["pass_pin"] = str(data['pas_pin'])
+		# 			registration_data["address"] = data['address']
+		# 			registration_data["company"] = data['company']
+		# 			registration_data["mobile"] = str(int(c))
+		# 			cus = CustomerProfile.objects.filter(auth_user_id=e)
+		# 			if cus.count() > 0:
+		# 				customer_registration_serializer = CustomerSignUpSerializer(cus[0],data=registration_data,partial=True)
+		# 				if customer_registration_serializer.is_valid():
+		# 					customer_registration_serializer.save()
+		# 				else:
+		# 					print(customer_registration_serializer.errors)
+		# 			else:
+		# 				pass
+		# 		else:
+		# 			create_user = User.objects.create_user(
+		# 							username=data['username'],
+		# 							email=data['username'],
+		# 							password=data['pas_pin'],
+		# 							is_staff=False,
+		# 							is_active=True
+		# 							)
+		# 			if create_user:
+		# 				registration_data["auth_user"] = create_user.id
+		# 				registration_data["name"] = data['name']
+		# 				registration_data["username"] = data['username']
+		# 				registration_data["email"] = data['email']
+		# 				registration_data["pass_pin"] = str(data['pas_pin'])
+		# 				registration_data["address"] = data['address']
+		# 				registration_data["company"] = data['company']
+		# 				registration_data["active_status"] = 1
+		# 				registration_data["mobile"] = str(int(c))
+		# 				customer_registration_serializer = CustomerSignUpSerializer(data=registration_data)
+		# 				if customer_registration_serializer.is_valid():
+		# 					customer_registration_serializer.save()
+		# 				else:
+		# 					print(customer_registration_serializer.errors)
+		# 			else:
+		# 				pass
+		# 	return Response({
+		# 				"success": True, 
+		# 				"message" : "Registration Successfully" 
+		# 				})
+		# except Exception as e:
+		# 	print("Step process creation/updation Api Stucked into exception!!")
+		# 	print(e)
+		# 	return Response({"success": False, "message": "Error happened!!", "errors": str(e)})
 

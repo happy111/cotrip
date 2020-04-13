@@ -19,18 +19,17 @@ class Login(LoggingMixin,APIView):
 	Customer login POST API
 
 		Authentication Required		: No
-		Service Usage & Description	: This Api is used to provide login services to user.
+		Service Usage & Description	: This Api is used to provide login services to user on the basis of provided user_id.
 
 		Data Post: {
 
-			"email"			        : "umeshsamal3@gmail.com",
-			"password"		        : "123456"
+			"user_id"			        : "72"
 		}
 
 		Response: {
 
 			"credential"			: true,
-			"message"				: "You are logged in now!!",
+			"token"                 : "zctebjfndfjwhjsbdewbdewzzzz"
 
 		}
 
@@ -42,39 +41,18 @@ class Login(LoggingMixin,APIView):
 			data = request.data
 			err_message = {}
 			err_message["email"] =  validation_master_anything(
-									data["email"],
-									"Email", email_re, 3)
-			err_message["password"] =  only_required(data["password"],"Password")
+									str(data["user_id"]),
+									"Email", contact_re, 1)
 			if any(err_message.values())==True:
 				return Response({
 					"success": False,
 					"error" : err_message,
 					"message" : "Please correct listed errors!!"
 					})
-
-			data['company'] = str(1)
-			username = data['company'] +'M'+str(data['email'])
-			is_user = CustomerProfile.objects.filter(username=username)
-			if is_user.count()==1:
-				if is_user.first().active_status == 0:
-					return Response({
-					"success" : False,
-					"message" : "User account is not active..Please contact admin!!"
-					})
-				else:
-					pass
-				credential_check = \
-					is_user.filter(password=data['password'])
-				if credential_check.count() == 1:
-					pass
-				else:
-					return Response \
-						({
-						"success": False,
-						"credential" : False,
-						"message": \
-						"Please enter valid login credentials!!"
-						})
+			username = str(data["user_id"])
+			check_user = User.objects.filter(username=username)
+			if check_user.count() == 1:
+				data["password"] = "!!!!!!"
 				user_authenticate = authenticate(username=username,password=data['password'])
 				if user_authenticate == None:
 					return Response({
@@ -89,19 +67,10 @@ class Login(LoggingMixin,APIView):
 										and user_authenticate.is_superuser == False:
 					login(request,user_authenticate)
 					token, created = Token.objects.get_or_create(user=user_authenticate)
-					user_id = token.user_id
-					user_type = is_user[0].user_type
-					if user_type == str(0):
-						utype = "Normal User"
-					else:
-						utype = 'Admin'
 					return Response({
 						"success": True,
 						"credential" : True,
-						"message" : "You are logged in now!!",
-						"token": token.key,
-						"user_id" : user_id,
-						"user_type": utype
+						"token": token.key
 						})
 				else:
 					return Response({
@@ -109,14 +78,8 @@ class Login(LoggingMixin,APIView):
 						"credential" : False,
 						"message": "Please enter valid login credentials!!"
 						})
-			else:
-				return Response({
-						"success": False,
-						"credential" : False,
-						"message": "This Username does not exist in the system!!"
-						})
 		except Exception as e:
-			print("User Login Api Stucked into exception!!")
+			print("User Login Api based on user_id Stucked into exception!!")
 			print(e)
 			return Response({"success": False, "message": "Error happened!!", "errors": str(e)})
 

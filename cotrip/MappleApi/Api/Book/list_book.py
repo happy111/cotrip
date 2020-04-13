@@ -34,6 +34,7 @@ class ListBook(APIView):
 					p_list['title'] = i.title
 					p_list['download_url'] = i.download_url
 					p_list['thumbnailURL'] = i.thumbnailURL
+					p_list['description'] = i.explanation
 					pro_data.append(p_list)
 				return Response({"status":True,
 								"data":pro_data})

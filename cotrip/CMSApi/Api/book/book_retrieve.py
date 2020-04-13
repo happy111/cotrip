@@ -19,6 +19,10 @@ class BookSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+def addr_set():
+	domain_name = "http://172.105.41.233:1234/media/"
+	return domain_name
+
 class BookRetrieve(APIView):
 	"""
 	Book retrieval POST API
@@ -78,8 +82,6 @@ class BookRetrieve(APIView):
 					q_dict["draft"] = "Editing"
 				else:
 					q_dict["draft"] = "Release"
-
-
 				if record[0].series_code == None:
 						series_name = None
 				else :
@@ -89,7 +91,6 @@ class BookRetrieve(APIView):
 						area_name = None
 				else :
 					area_name = record[0].area_code.area_name
-
 				q_dict["series_code"] = series_name
 				q_dict["area_code"] = area_name
 				q_dict["book_type"] = record[0].book_type
@@ -110,8 +111,12 @@ class BookRetrieve(APIView):
 					q_dict["modified"] = ''
 				p = record[0].created+timedelta(hours=5,minutes=30)
 				q_dict['registration'] = p.strftime("%Y-%m-%d %I:%M %p")
-
-
+				domain_name = addr_set()
+				if record[0].epub_cover != None:
+					full_path = domain_name + str(record[0].epub_cover)
+					q_dict['epub_cover'] = full_path 
+				else:
+					q_dict['epub_cover'] = ''
 				final_result.append(q_dict)
 			if final_result:
 				return Response({

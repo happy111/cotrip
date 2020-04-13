@@ -79,8 +79,6 @@ class BookCreationUpdation(APIView):
 					"error" : err_message,
 					"message" : "Please correct listed errors!!"
 					})
-
-
 			if "id" in data:
 				book_record = MstBooks.objects.filter(id=data['id'])
 				if book_record.count() == 0:

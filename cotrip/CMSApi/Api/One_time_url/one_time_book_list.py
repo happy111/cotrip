@@ -23,10 +23,13 @@ class OneTimeBookList(APIView):
 		Authentication Required		: Yes
 		Service Usage & Description	: This Api is used for listing of book.
 
-		Data Post : {				
-								"search":"97",
-								"page_no":"1"
-											
+		Data Post : {
+	
+												
+						"search":"97",
+						"page_no":"1"
+						"compaign_book" : "0", ( if checked ->"1" ,if not checked -> "0")
+						
 					}
 
 		Response: {
@@ -42,15 +45,14 @@ class OneTimeBookList(APIView):
 		}
 
 	"""
-	permission_classes = (IsAuthenticated,)
+	# permission_classes = (IsAuthenticated,)
 	def post(self, request, format=None):
 		try:
 			book_data = MstBooks.objects.filter().order_by('id')
-
 			if book_data.count() > 0:
 
 				data = request.data
-				print(data)
+
 				search = ""
 				if "search" in data:
 					search = data["search"]
@@ -60,8 +62,9 @@ class OneTimeBookList(APIView):
 
 				if "compaign_book" in data:
 					compaign_book = data["compaign_book"]
+					print(compaign_book)
 
-					if compaign_book == False : # It mean unchecked
+					if not compaign_book   : # It mean unchecked
 						book_data = book_data.filter(~Q(series_code=None))
 
 
@@ -96,6 +99,7 @@ class OneTimeBookList(APIView):
 				pro_data =[]
 				series_name = None
 				for i in range(len(book_data_pages.object_list)):
+					
 					if book_data_pages[i].series_code == None:
 						series_name = None
 					else :
