@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from Book.models import *
-
+from django.db.models import Q
 import os
 import xlrd 
 from Configuration.models import Excelimport
@@ -65,8 +65,6 @@ class BookImport(APIView):
 			b = a.replace("CMSApi/Api","")
 			ad =b+'media/'+str(dt)
 			tsv_read = pd.read_csv(ad, sep='\t')
-
-
 			final_result = []
 			uuid_d=tsv_read['[uuid]']
 			name = tsv_read['[publication name]']
@@ -80,6 +78,8 @@ class BookImport(APIView):
 
 
 			areacode = tsv_read['[area code]']
+
+
 			country = tsv_read['[country (domestic:? | overseas: ?)]']
 			booktype = tsv_read['[Type (QR book / Sales book:? | QR book:? | Sales book:? | Free book:? | Free URL book :?)]']
 			itemcodeios = tsv_read['[iOS item code]']
@@ -124,6 +124,8 @@ class BookImport(APIView):
 
 				
 				area_code=None
+
+
 				if(type(areacode[i])!=float):  # to identify the Nan value
 					area = MstAreas.objects.filter(area_code=areacode[i])
 					if area.count() == 0:
@@ -165,21 +167,30 @@ class BookImport(APIView):
 						'draft':0,
 						'oversea':country[i]
 						}
-
-
-
-				book_serializer = BookSerializer(data=data)
-				if book_serializer.is_valid():
-					data_info = book_serializer.save()
+				epub_cover = str('epubcover/')+isbn_edition+str('.jpg')
+				epub = str('epub/')+isbn_edition+str('.epub')
+				bobj = MstBooks.objects.filter(Q(epub=epub) | Q(epub_cover=epub_cover))
+				if bobj.count() > 0:
+					book_serializer = BookSerializer(bobj[0],data=data,partial=True)
+					if book_serializer.is_valid():
+						data_info = book_serializer.save()
+					else:
+						print("something went wrong!!")
+						return Response({
+							"success": False, 
+							"message": str(book_serializer.errors),
+							})
 				else:
-					print("something went wrong!!")
-					return Response({
-						"success": False, 
-						"message": str(book_serializer.errors),
-						})
-			
+					book_serializer = BookSerializer(data=data)
+					if book_serializer.is_valid():
+						data_info = book_serializer.save()
+					else:
+						print("something went wrong!!")
+						return Response({
+							"success": False, 
+							"message": str(book_serializer.errors),
+							})
 				final_result.append(book_serializer.data)
-
 			return Response({
 					"success": True, 
 					"message": "Book creation/updation api worked well!!",

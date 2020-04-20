@@ -47,21 +47,21 @@ class SeriesCreationUpdation(APIView):
 	def post(self, request, format=None):
 		try:
 			data = request.data
-			err_message = {}
-			err_message["series_name"] =  validation_master_anything(
-									data["series_name"],
-									"Series name", username_re, 1)
+			# err_message = {}
+			# err_message["series_name"] =  validation_master_anything(
+			# 						data["series_name"],
+			# 						"Series name", username_re, 1)
 
-			err_message["series_code"] =  validation_master_anything(
-									data["series_code"],
-									"Series code", vat_re, 1)
+			# err_message["series_code"] =  validation_master_anything(
+			# 						data["series_code"],
+			# 						"Series code", vat_re, 1)
 
-			if any(err_message.values())==True:
-				return Response({
-					"success": False,
-					"error" : err_message,
-					"message" : "Please correct listed errors!!"
-					})
+			# if any(err_message.values())==True:
+			# 	return Response({
+			# 		"success": False,
+			# 		"error" : err_message,
+			# 		"message" : "Please correct listed errors!!"
+			# 		})
 
 
 

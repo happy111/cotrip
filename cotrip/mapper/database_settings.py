@@ -23,4 +23,17 @@ DATABASES = {
 # }
 
 
-Configuration_excelimport
+# Configuration_excelimport
+
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'cotrip',
+#         'USER': 'admin',
+#         'PASSWORD': 'adminbeta@4321',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }

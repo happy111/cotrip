@@ -18,6 +18,11 @@ class BookSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+def addr_set():
+	domain_name = "http://172.105.41.233:1234/media/"
+	return domain_name
+
+	
 class OneTimeBookRetrieve(APIView):
 	"""
 	Book retrieval POST API
@@ -83,7 +88,13 @@ class OneTimeBookRetrieve(APIView):
 				q_dict["title"] = record[0].title
 				q_dict["publication_date"] = record[0].release_date
 				q_dict["download_deadline"] = record[0].expiration_end
-				q_dict['thumbnailURL'] = record[0].thumbnailURL
+
+				domain_name = addr_set()
+				if record[0].epub_cover != None:
+					full_path = domain_name + str(record[0].epub_cover)
+					q_dict['epub_cover'] = full_path 
+				else:
+					q_dict['epub_cover'] = ''
 				
 				final_result.append(q_dict)
 

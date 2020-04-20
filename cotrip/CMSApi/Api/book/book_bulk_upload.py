@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import logout
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from Book.models import *
-
+from django.db.models import Q
 import os
 import xlrd 
 from Configuration.models import Excelimport
@@ -18,6 +18,10 @@ import pandas as pd
 from datetime import datetime
 import math
 from rest_framework import serializers
+from PIL import Image
+import pytesseract
+from os import path
+
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -50,8 +54,21 @@ class BookBulkUpload(APIView):
 			data = request.data
 			allimages = list(data.values())
 			for i in allimages:
-				print(i)
 				a = str(i)
+				p = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+				x = p.replace("CMSApi/Api", "")
+				f_path = x + str('media/epubcover/')
+				epub = f_path+str(i)
+				f_path = x + str('media/epub/')
+				epubs = f_path+str(i)
+				if os.path.exists(epub):
+					os.remove(epub)
+				else:
+					pass
+				if os.path.exists(epubs):
+					os.remove(epubs)
+				else:
+					pass
 				if a == 'null':
 					pass
 				else:
@@ -59,12 +76,15 @@ class BookBulkUpload(APIView):
 					if fimage[1] == str('epub'):
 						rd['epub'] = i
 					else:
-						pass
+						epubs = None
 					if fimage[1] == str('jpg'):
 						rd['epub_cover'] = i
+
 					else:
-						pass
-					bobj = MstBooks.objects.filter(isbn_edition=fimage[0])
+						epubs_cover  = None
+					epubs =  str('epub/')+str(fimage[0])+'.epub'
+					epubs_cover =  str('epubcover/')+str(fimage[0])+'.jpg'
+					bobj = MstBooks.objects.filter(Q(isbn_edition=fimage[0]) | Q(epub=epubs) | Q(epub_cover=epubs_cover))
 					if bobj.count() > 0:
 						rd["modified"] = datetime.now()
 						book_serializer = BookSerializer(bobj[0],data=rd,partial=True)
@@ -73,7 +93,11 @@ class BookBulkUpload(APIView):
 						else:
 							print("ccccccccccccccc",book_serializer.errors)
 					else:
-						pass
+						book_serializer = BookSerializer(data=rd)
+						if book_serializer.is_valid():
+							data_info = book_serializer.save()
+						else:
+							print("ccccccccccccccc",book_serializer.errors)
 					rd.clear()
 			return Response({
 					"success": True, 

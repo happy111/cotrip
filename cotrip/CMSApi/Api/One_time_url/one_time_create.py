@@ -12,15 +12,15 @@ from django.db.models import Max
 
 #Serializer for api
 from rest_framework import serializers
-from Book.models import MstBooks
+from Book.models import OnetimeLinks
 
-class BookSerializer(serializers.ModelSerializer):
+class OneTimeSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = MstBooks
+		model = OnetimeLinks
 		fields = '__all__'
 
 
-class BookCreationUpdation(APIView):
+class OneTimeBookCreate(APIView):
 	"""
 	Book Creation & Updation POST API
 
@@ -64,30 +64,6 @@ class BookCreationUpdation(APIView):
 		try:
 			data = request.data
 			err_message = {}
-
-
-			err_message["uuid"] =  validation_master_anything(
-									data["uuid"],
-									"Book uuid", contact_re, 1)
-
-			if any(err_message.values())==True:
-				return Response({
-					"success": False,
-					"error" : err_message,
-					"message" : "Please correct listed errors!!"
-					})
-
-
-			print(data)
-
-
-
-
-
-
-
-
-
 			if "id" in data:
 				unique_check = MstBooks.objects.filter(~Q(id=data["id"]),Q(uuid__iexact=data["uuid"]))
 			else:
@@ -119,7 +95,7 @@ class BookCreationUpdation(APIView):
 					if book_serializer.is_valid():
 						data_info = book_serializer.save()
 					else:
-						print("something went wrong!!",book_serializer.errors)
+						print("something went wrong!!")
 						return Response({
 							"success": False, 
 							"message": str(book_serializer.errors),

@@ -13,7 +13,9 @@ import json
 from Book.models import MstBooks
 
 
-
+def addr_set():
+	domain_name = "http://172.105.41.233:1234/media/"
+	return domain_name
 
 class ListBook(APIView):
 	"""
@@ -32,8 +34,17 @@ class ListBook(APIView):
 					p_list['id'] = i.id
 					p_list['isbn_edition'] = i.isbn_edition
 					p_list['title'] = i.title
-					p_list['download_url'] = i.download_url
-					p_list['thumbnailURL'] = i.thumbnailURL
+					domain_name = addr_set()
+					full_path = domain_name + str(i.epub_cover)
+					if full_path == 'http://172.105.41.233:1234/media/':
+						p_list['thumbnailURL'] = ''
+					else:
+						p_list['thumbnailURL'] = full_path
+					full_path_book = domain_name + str(i.epub)
+					if full_path_book == 'http://172.105.41.233:1234/media/':
+						p_list['download_url'] = ''
+					else:
+						p_list['download_url'] = full_path_book
 					p_list['description'] = i.explanation
 					pro_data.append(p_list)
 				return Response({"status":True,

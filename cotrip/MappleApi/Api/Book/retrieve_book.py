@@ -9,8 +9,9 @@ from datetime import datetime
 #Serializer for api
 from rest_framework import serializers
 from Book.models import MstBooks
+import os
+from mapper import settings
 from datetime import datetime, timedelta
-
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -20,10 +21,11 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 def addr_set():
-	domain_name = "http://172.105.41.233:1234/media/"
+	domain_name = "http://172.105.41.233:8080media/"
 	return domain_name
 
-class BookRetrieve(APIView):
+	
+class RetrieveBook(APIView):
 	"""
 	Book retrieval POST API
 
@@ -38,6 +40,18 @@ class BookRetrieve(APIView):
 
 			"success": True, 
 			"message": "Book retrieval api worked well!!",
+			"data": [
+				        {
+				            "id": 17,
+				            "isbn_edition": "9784398286642-17-1",
+				            "title": "ソウル’１９",
+				            "issued_date": "2018-10-15",
+				            "thumbnailURL": "http://172.105.41.233:1234/media/epubcover/9784398286642-17-1.jpg",
+				            "download_url": "http://172.105.41.233:1234/media/epub/9784398286642-17-1.epub",
+				            "description": "変化の激しいソウルの最旬&定番が満載の一冊。\\n何度でもオイシイ絶品焼肉、大流行チーズタッカルビ、激辛フード、ローカル&ディープな地元メシなど必食グルメが盛りだくさん。大本命の韓国コスメは新商品も続々&王道もバッチリ。",
+				            "file_size": "5.29 MB"
+				        }
+    ]
  		}
 
 	"""
@@ -66,57 +80,32 @@ class BookRetrieve(APIView):
 			else:
 				final_result = []
 				q_dict = {}
+
 				q_dict["id"] = record[0].id
 				q_dict["isbn_edition"] = record[0].isbn_edition
-				q_dict["uuid"] = record[0].uuid
 				q_dict["title"] = record[0].title
-				q_dict["issued_date"] = record[0].issued_date
-				q_dict["release_date"] = record[0].release_date
-				if record[0].oversea == False:
-					q_dict["oversea"] = str(0)
-				else:
-					q_dict['oversea'] = str(1)
-				if record[0].draft ==str(0):
-					q_dict["draft"] = "Unpublished"
-				elif record[0].draft == str(1):
-					q_dict["draft"] = "Editing"
-				else:
-					q_dict["draft"] = "Release"
-				if record[0].series_code == None:
-						series_name = None
-				else :
-					series_name = record[0].series_code.series_name
-
-				if record[0].area_code == None:
-						area_name = None
-				else :
-					area_name = record[0].area_code.area_name
-				q_dict["series_code"] = series_name
-				q_dict["area_code"] = area_name
-				q_dict["book_type"] = record[0].book_type
-				q_dict["paper_version"] = record[0].paper_version
-				q_dict["expiration_start"] = record[0].expiration_start
-				q_dict["item_code_android"] = record[0].item_code_android
-				q_dict["item_code_ios"] = record[0].item_code_ios
-				q_dict["expiration_end"] = record[0].expiration_end
-				q_dict["explanation"] = record[0].explanation
-				q_dict["free_url"] = record[0].free_url
-				q_dict["map_credit"] = record[0].map_credit
-				q_dict['expire_days'] = record[0].expire_days
-				if record[0].modified !=None:
-					m = record[0].modified+timedelta(hours=5,minutes=30)
-					q_dict["modified"] =  m.strftime("%Y-%m-%d %I:%M %p")
-				else:
-					q_dict["modified"] = ''
-				p = record[0].created+timedelta(hours=5,minutes=30)
-				q_dict['registration'] = p.strftime("%Y-%m-%d %I:%M %p")
+				e = record[0].issued_date+timedelta(hours=5,minutes=30)
+				q_dict['issued_date'] = e.strftime("%Y-%m-%d")
 				domain_name = addr_set()
 				full_path = domain_name + str(record[0].epub_cover)
 				if full_path == 'http://172.105.41.233:1234/media/':
-					q_list['epub_cover'] = ''
+					q_dict['thumbnailURL'] = ''
 				else:
-					q_dict['epub_cover'] = full_path 
+					q_dict['thumbnailURL'] = full_path
+				full_path_book = domain_name + str(record[0].epub)
+				if full_path_book == 'http://172.105.41.233:8080/media/':
+					q_dict['download_url'] = ''
+				else:
+					q_dict['download_url'] = full_path_book
+				q_dict['description'] = record[0].explanation
+				file_size = ""
+				if record[0].epub != None:
+					file = os.path.join(settings.BASE_DIR, 'media/{}'.format(str(record[0].epub)))
+					file_size = round(os.stat(file).st_size/1000000,2)
+					
+				q_dict['file_size'] = str(file_size) + " MB"
 				final_result.append(q_dict)
+
 			if final_result:
 				return Response({
 							"success": True, 

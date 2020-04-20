@@ -50,20 +50,20 @@ class AreaCreationUpdation(APIView):
 			data = request.data
 			err_message = {}
 			data['draft'] = 0
-			err_message["area_name"] =  validation_master_anything(
-									data["area_name"],
-									"Area name", username_re, 1)
+			# err_message["area_name"] =  validation_master_anything(
+			# 						data["area_name"],
+			# 						"Area name", username_re, 1)
 
-			err_message["area_code"] =  validation_master_anything(
-									data["area_code"],
-									"Area code", vat_re, 1)
+			# err_message["area_code"] =  validation_master_anything(
+			# 						data["area_code"],
+			# 						"Area code", vat_re, 1)
 
-			if any(err_message.values())==True:
-				return Response({
-					"success": False,
-					"error" : err_message,
-					"message" : "Please correct listed errors!!"
-					})
+			# if any(err_message.values())==True:
+			# 	return Response({
+			# 		"success": False,
+			# 		"error" : err_message,
+			# 		"message" : "Please correct listed errors!!"
+			# 		})
 
 			if "id" in data:
 				area_record = MstAreas.objects.filter(id=data['id'])

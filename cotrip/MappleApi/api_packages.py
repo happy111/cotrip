@@ -1,26 +1,58 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 import re
 from django.db.models import Sum
 import string
 
-zero__re = r'[0]*$'
-alpha_re = r"[a-zA-Z' ]*$"
-alpha_nu_re = r"[a-zA-Z' ]{1,}[0-9,- ]{0,}[a-zA-Z']{1,}*$"
-vat_re = r'[a-zA-Z.0-9 ]*$'
-contact_re = r'[0-9]*$'
-res_limit_re = r'[0-9]{1,5}$'
-address_re = r'[a-zA-z0-9]{1,250}[.&,()/\ -]{0,}[a-zA-z.0-9&,()/\ -]{1,250}$'
-lat_long_re = r'[0-9-]{1,}[.]{0,}[0-9-.]{0,15}$'
-description_re = r"[a-zA-z0-9 ]{1,}[@%&$.,/\()!|'#* -]{0,}[a-zA-z.,#@%&$/\()|!'0-9 -;]{0,}$"
-cu_service_re = r"[a-zA-z0-9;]{1,200}[@%&$.,/\()' -]{0,}[a-zA-z.,@%&$/\()'0-9 -;]{0,200}$"
-email_re = r'[a-zA-Z0-9]{1,}[._]{0,}[a-zA-Z0-9]{1,}[@]{1,1}[a-zA-Z0-9]{1,}[.]{1,1}[a-zA-Z ]{1,}$'
-outlet_name_re = r'[a-zA-Z.0-9, ]{1,}[-_,]*[a-zA-Z.0-9 ]{1,}$'
-web_re = r'[a-zA-Z]{1,}[:]{1,1}[//]{1,}[.a-zA-Z ]{1,}$'
-username_re = r'[a-zA-Z.0-9& ]{1,}[-_& ]*[a-zA-Z.0-9& ]{1,}$'
-product_re = r'[a-zA-Z.0-9 ]{1,}[-_&|,()" ]*[a-zA-Z.,0-9)&|" ]{1,}$'
-pass_re = r'[a-zA-Z0-9-#$%^&*@!+_></\| ():;]{1,}$'
-active_re = r'[01]{1,1}$'
 
+
+zero__re = u"[0]*$"
+alpha_re = u"[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z' ]*$"
+alpha_nu_re = u"[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z' ]{1,}\
+[0-9,- ]{0,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z']{1,}*$"
+vat_re = u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9 ]*$'
+contact_re = u'[0-9]*$'
+res_limit_re = u'[0-9]{1,5}$'
+address_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z0-9]{1,250}\
+[.&,()/\ -0-9]{0,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z.0-9&,()/\ -]{1,250}$'
+lat_long_re = u'[0-9-]{1,}[.]{0,}[0-9-.]{1,15}$'
+description_re = \
+u"[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z0-9 ]{1,}\
+[@%&$.,/\()' - ]{0,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z.,@%&$/\()'0-9 -; ]{0,}$"
+cu_service_re = \
+u"[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z0-9;]{1,200}\
+[@%&$.,/\()' -]{0,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-z.,@%&$/\()'0-9 -;]{0,200}$"
+email_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z0-9-]{1,}\
+[._-]{0,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z0-9-]{1,}[@]{1,1}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z0-9-]{1,}[.]\
+{1,1}[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z- ]{1,}$'
+outlet_name_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9, ]{1,}\
+[-_,]*[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9 ]{1,}$'
+web_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9:// ]{1,}\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z]{1,}$'
+username_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9 ]{1,}\
+[-_]*[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9]{1,}$'
+pass_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Zàèéìòóù€ö0-9-#$%^&*@!+_></\| ():;]{1,}$'
+active_re = r'[01]{1,1}$'
+mori_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9 ]{1,}\
+[-_&|,()" ]*\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.,0-9)&|" ]{1,}$'
+bloog_grp_re = \
+u'[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.0-9 ]{1,}\
+[-_&|,()"+ ]*\
+[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbfa-zA-Z.,0-9)&|+" ]{1,}$'
 
 def strtotime(t):
 	time_only = datetime.strptime(t,'%Y-%m-%d')
@@ -31,15 +63,19 @@ def validate_anything(field_to_validate, reg_re, zero_re,minimum_len, field_name
 	a = ""
 	if field_to_validate != "":
 		if "^" in field_to_validate:
-			a = "Please enter valid " +  field_name + "!!"
+			# a = "Please enter valid " +  field_name + "!!"
+			a = "有効な名前を入力してください " +  field_name + "!!"
 		if field_to_validate != None and len(field_to_validate)<minimum_len:
-			a = field_name + " field should contain at least " + str(minimum_len) + " characters!!"
+			# a = field_name + " field should contain at least " + str(minimum_len) + " characters!!"
+			a = field_name + " フィールドには少なくとも " + str(minimum_len) + " 文字を含める必要があります!!"
 		if field_to_validate != None and re.match(zero__re, field_to_validate)\
 											  and len(field_to_validate)>minimum_len-1:
-			a = "All zeros are not allowed in " +field_name +" field!!"
+			# a = "All zeros are not allowed in " +field_name +" field!!"
+			a = "名前フィールドにはすべてゼロを " +field_name +" できません!!"
 		if field_to_validate != None and not re.match(zero__re, field_to_validate)\
 				and len(field_to_validate)>minimum_len-1 and not re.match(reg_re, field_to_validate):
-			a = "Please enter valid " +  field_name + "!!"
+			# a = "Please enter valid " +  field_name + "!!"
+			a = "有効な名前を入力してください " +  field_name + "!!"
 	else:
 		pass
 	if a == "":
@@ -47,21 +83,24 @@ def validate_anything(field_to_validate, reg_re, zero_re,minimum_len, field_name
 	else:
 		return a
 
-
 def validate_exact(field_to_validate, reg_re, zero_re,exact_len, field_name):
 	a = ""
 	if "^" in field_to_validate:
-		a = "Please enter valid " + field_name + "!!"
+		# a = "Please enter valid " + field_name + "!!"
+		a = "有効な名前を入力してください " + field_name + "!!"
 	if field_to_validate != None and len(field_to_validate)<exact_len:
-		a = field_name + " field should contain exactly " + str(exact_len) + " characters!!"
+		a = field_name + " には正確に " + str(exact_len) + " 文字を含める必要があります!!"
 	if field_to_validate != None and len(field_to_validate)>exact_len:
-		a = field_name + " field should contain exactly " + str(exact_len) + " characters!!"
+		# a = field_name + " field should contain exactly " + str(exact_len) + " characters!!"
+		a = field_name + " には正確に " + str(exact_len) + " 文字を含める必要があります!!"
 	if field_to_validate != None and re.match(zero__re, field_to_validate)\
 	and len(field_to_validate)==exact_len:
-		a = "All zeros are not allowed in " +field_name +" field!!"
+		# a = "All zeros are not allowed in " +field_name +" field!!"
+		a = "名前フィールドにはすべてゼロを " +field_name +" できません!!"
 	if field_to_validate != None and not re.match(zero__re, field_to_validate)\
 	and len(field_to_validate)<=exact_len and not re.match(reg_re, field_to_validate):
-		a = "Please enter valid " + field_name + "!!"
+		# a = "Please enter valid " + field_name + "!!"
+		a = "有効な名前を入力してください " + field_name + "!!"
 	if a == "":
 		pass
 	else:
@@ -70,7 +109,7 @@ def validate_exact(field_to_validate, reg_re, zero_re,exact_len, field_name):
 
 def only_required(key_to_validate, alert_field_name):
 	if key_to_validate==None or key_to_validate=="" or key_to_validate=="Null":
-		only_response = "Please enter your " + alert_field_name +"!!"
+		only_response = "を入力してください " + alert_field_name +"!!"
 	else:
 		only_response = ""
 	if only_response == "":
@@ -80,7 +119,7 @@ def only_required(key_to_validate, alert_field_name):
 
 def validation_master_anything(key_to_validate, alert_field_name, reg_re, min_length):
 	if key_to_validate==None or key_to_validate=="":
-		response = "Please enter your " + alert_field_name +"!!"
+		response = "を入力してください " + alert_field_name +"!!"
 	else:
 		response = validate_anything(key_to_validate, reg_re, zero__re,
 												 min_length, alert_field_name)
@@ -91,7 +130,7 @@ def validation_master_anything(key_to_validate, alert_field_name, reg_re, min_le
 
 def validation_master_exact(key_to_validate, alert_field_name,reg_re, exact_length):
 	if key_to_validate==None or key_to_validate=="":
-		response_exact = "Please enter your " + alert_field_name +"!!"
+		response_exact = "を入力してください " + alert_field_name +"!!"
 	else:
 		response_exact = validate_exact(key_to_validate, reg_re, zero__re,
 												 exact_length, alert_field_name)
